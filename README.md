@@ -7,7 +7,7 @@ This script was created by Brian McGonagill and copied from his gitlab https://g
 ## Using this script
 
 1. Clone the repo
-`git clone https://gitlab.com/bmcgonag/docker_installs.git`
+`git clone https://github.com/tnoahc/docker_installs/blob/main/install_docker_nproxyman.sh`
 
 , or copy / paste the code from the `install_docker_nproxyman.sh` file into a file on your server. 
 
