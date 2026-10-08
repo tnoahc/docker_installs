@@ -35,5 +35,4 @@ Command output is redirected to `~/docker-script-install.log`. Long-running step
 
 ## Known quirks in the current script
 
-- openSUSE installs then removes `docker-compose` instead of installing `docker`, and its update log is written relative to the current directory, not `~`.
 - The script ends with `exit 1` even on success.

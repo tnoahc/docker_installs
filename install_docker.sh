@@ -245,7 +245,7 @@ startInstall()
         if [[ "$UPDSUSE" == [yY] ]]; then
             echo "    1. Installing System Updates... this may take a while...be patient."
 
-            (sudo zypper -n update) > docker-script-install.log 2>&1 &
+            (sudo zypper -n update) > ~/docker-script-install.log 2>&1 &
             ## Show a spinner for activity progress
             pid=$! # Process Id of the previous running command
             spin='-\|/'
@@ -269,8 +269,7 @@ startInstall()
             echo "    3. Installing Docker-CE (Community Edition)..."
             sleep 2s
 
-            sudo zypper -n install docker-compose >> ~/docker-script-install.log 2>&1
-            sudo zypper -n remove docker-compose
+            sudo zypper -n install docker >> ~/docker-script-install.log 2>&1
             echo "Giving the Docker service time to start..."
         
             sudo systemctl start docker >> ~/docker-script-install.log 2>&1
