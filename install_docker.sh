@@ -643,7 +643,7 @@ EOF
     echo "If you add more docker applications to this server, make sure to add them to the my-main-net network."
     echo "You can then use them by container name in NGinX Proxy Manager if so desired."
 
-    exit 1
+    exit 0
 }
 
 echo ""
