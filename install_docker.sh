@@ -4,9 +4,9 @@ installApps()
 {
     clear
     OS="$REPLY" ## <-- This $REPLY is about OS Selection
-    echo "We can install Docker-CE, Docker-Compose, NGinX Proxy Manager, and Portainer-CE."
+    echo "We can install Docker-CE, Docker-Compose, NGinX Proxy Manager, and Dockhand."
     echo "Please select 'y' for each item you would like to install."
-    echo "NOTE: Without Docker you cannot use Docker-Compose, NGinx Proxy Manager, or Portainer-CE."
+    echo "NOTE: Without Docker you cannot use Docker-Compose, NGinx Proxy Manager, or Dockhand."
     echo "       You also must have Docker-Compose for NGinX Proxy Manager to be installed."
     echo ""
     echo ""
@@ -33,28 +33,9 @@ installApps()
 
     read -rp "NGinX Proxy Manager (y/n): " NPM
     read -rp "Navidrome (y/n): " NAVID
-    read -rp "Portainer-CE (y/n): " PTAIN
+    read -rp "Dockhand - Docker Management GUI (y/n): " DOCKHAND
     read -rp "Remotely - Remote Desktop Support (y/n): " REMOTELY
     read -rp "Guacamole - Remote Desktop Protocol in the Browser (y/n): " GUAC
-
-    if [[ "$PTAIN" == [yY] ]]; then
-        echo ""
-        echo ""
-        PS3="Please choose either Portainer-CE or just Portainer Agent: "
-        select _ in \
-            " Full Portainer-CE (Web GUI for Docker, Swarm, and Kubernetes)" \
-            " Portainer Agent - Remote Agent to Connect from Portainer-CE" \
-            " Nevermind -- I don't need Portainer after all."
-        do
-            PORT="$REPLY"
-            case $REPLY in
-                1) startInstall ;;
-                2) startInstall ;;
-                3) startInstall ;;
-                *) echo "Invalid selection, please try again..." ;;
-            esac
-        done
-    fi
     
     startInstall
 }
@@ -75,9 +56,9 @@ startInstall()
 
     if [[ "$OS" == "7" ]]; then
         echo "    1. Installing System Updates..."
-        (sudo apt update  && sudoa apt upgrade -y) > ~/docker-script-install.loc 2>&1 &
+        (sudo apt update  && sudo apt upgrade -y) > ~/docker-script-install.log 2>&1 &
         ## Show a spinner for activity progress
-        pid=$   # Process ID of the previous running command
+        pid=$!  # Process ID of the previous running command
         spin='-\|/'
         i=0
         while kill -0 $pid 2>/dev/null
@@ -89,9 +70,9 @@ startInstall()
         printf "\r"
 
         echo "    2. Install Prerequisite Packages..."
-        (sudo apt install curl wget git -y) >> ~/docker-script-install.log 2>&1
+        (sudo apt install curl wget git -y) >> ~/docker-script-install.log 2>&1 &
         ## Spinner time...
-        pid=$   # Process ID of the previous running command
+        pid=$!  # Process ID of the previous running command
         spin='-\|/'
         i=0
         while kill -0 $pid 2>/dev/null
@@ -107,9 +88,9 @@ startInstall()
             sleep 2s
 
         
-            curl -fsSL https://get.docker.com | sh >> ~/docker-script-install.log 2>&1
+            curl -fsSL https://get.docker.com | sh >> ~/docker-script-install.log 2>&1 &
             # Time to spin
-            pid=$   # Process ID of the previous running command
+            pid=$!  # Process ID of the previous running command
             spin='-\|/'
             i=0
             while kill -0 $pid 2>/dev/null
@@ -125,9 +106,9 @@ startInstall()
             echo "          "${DOCKERV}
             sleep 3s
 
-            if [[ "$OS" == 2 ]]; then
+            if [[ "$OS" == 7 ]]; then
                 echo "    5. Starting Docker Service"
-                sudo systemctl docker start >> ~/docker-script-install.log 2>&1
+                sudo systemctl start docker >> ~/docker-script-install.log 2>&1
             fi
         fi
     fi
@@ -169,7 +150,7 @@ startInstall()
 
             if [[ "$OS" == 2 ]]; then
                 echo "    5. Starting Docker Service"
-                sudo systemctl docker start >> ~/docker-script-install.log 2>&1
+                sudo systemctl start docker >> ~/docker-script-install.log 2>&1
             fi
         fi
 
@@ -346,9 +327,9 @@ startInstall()
 
         if [[ "$OS" == "7" ]]; then
             echo "    1. Installing dependencies..."
-            (sudo apt-get install -y libffi-dev libssl-dev python3-dev python3 python3-pip) >> ~/docker-script-install.log 2>&1
+            (sudo apt-get install -y libffi-dev libssl-dev python3-dev python3 python3-pip) >> ~/docker-script-install.log 2>&1 &
             # Show our spinner
-            pid=$   # Process ID of the previous running command
+            pid=$!  # Process ID of the previous running command
             spin='-\|/'
             i=0
             while kill -0 $pid 2>/dev/null
@@ -359,9 +340,9 @@ startInstall()
             done
             printf "\r"
 
-            (sudo pip3 install docker-compose) >> ~/docker-script-install.log 2>&1
+            (sudo pip3 install docker-compose) >> ~/docker-script-install.log 2>&1 &
             # Show the spinner again...
-            pid=$   # Process ID of the previous running command
+            pid=$!  # Process ID of the previous running command
             spin='-\|/'
             i=0
             while kill -0 $pid 2>/dev/null
@@ -429,7 +410,8 @@ startInstall()
     #### Test if Docker Service is Running ###
     ##########################################
     ISACT=$( (sudo systemctl is-active docker ) 2>&1 )
-    if [[ "$ISACt" != "active" ]]; then
+    X=0
+    if [[ "$ISACT" != "active" ]]; then
         echo "Giving the Docker service time to start..."
         while [[ "$ISACT" != "active" ]] && [[ $X -le 10 ]]; do
             sudo systemctl start docker >> ~/docker-script-install.log 2>&1
@@ -496,20 +478,39 @@ startInstall()
         cd
     fi
 
-    if [[ "$PORT" == "1" ]]; then
+    if [[ "$DOCKHAND" == [yY] ]]; then
         echo "########################################"
-        echo "###      Installing Portainer-CE     ###"
+        echo "###        Installing Dockhand       ###"
         echo "########################################"
         echo ""
-        echo "    1. Preparing to Install Portainer-CE"
+        echo "    1. Preparing to Install Dockhand"
         echo ""
-        echo "    2. Creating the folder structure for Portainer."
-        echo "    3. You can find Portainer-CE files in ./docker/portainer"
+        echo "    2. Creating the folder structure for Dockhand."
+        echo "    3. You can find Dockhand files in ./docker/dockhand"
 
-        #sudo docker volume create portainer_data >> ~/docker-script-install.log 2>&1
-        mkdir -p docker/portainer/portainer_data
-        cd docker/portainer
-        curl https://gitlab.com/bmcgonag/docker_installs/-/raw/main/docker_compose_portainer_ce.yml -o docker-compose.yml >> ~/docker-script-install.log 2>&1
+        mkdir -p docker/dockhand/data
+        cd docker/dockhand
+
+        # write the Dockhand docker-compose file
+        cat > docker-compose.yml <<'EOF'
+---
+services:
+  dockhand:
+    image: fnsys/dockhand:latest
+    container_name: dockhand
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+    networks:
+      - my-main-net
+
+networks:
+  my-main-net:
+    external: true
+EOF
         echo ""
 
         if [[ "$OS" == "1" ]]; then
@@ -519,39 +520,8 @@ startInstall()
         fi
 
         echo ""
-        echo "    Navigate to your server hostname / IP address on port 9000 and create your admin account for Portainer-CE"
+        echo "    Navigate to your server hostname / IP address on port 3000 to set up Dockhand."
 
-        echo ""
-        echo ""
-        echo ""
-        sleep 3s
-        cd
-    fi
-
-    if [[ "$PORT" == "2" ]]; then
-        echo "###########################################"
-        echo "###      Installing Portainer Agent     ###"
-        echo "###########################################"
-        echo ""
-        echo "    1. Preparing to install Portainer Agent"
-        echo "    2. Creating the folder structure for Portainer."
-        echo "    3. You can find Portainer-Agent files in ./docker/portainer"
-
-        sudo docker volume create portainer_data
-        mkdir -p docker/portainer
-        cd docker/portainer
-        curl https://gitlab.com/bmcgonag/docker_installs/-/raw/main/docker_compose_portainer_ce_agent.yml -o docker-compose.yml >> ~/docker-script-install.log 2>&1
-        echo ""
-        
-        if [[ "$OS" == "1" ]]; then
-          docker-compose up -d
-        else
-          sudo docker-compose up -d
-        fi
-
-        echo ""
-        echo "    From Portainer or Portainer-CE add this Agent instance via the 'Endpoints' option in the left menu."
-        echo "       ####     Use the IP address of this server and port 9001"
         echo ""
         echo ""
         echo ""
@@ -692,7 +662,7 @@ echo "        --  Description        " $(lsb_release -d)
 echo "        --  OS Version        " $(lsb_release -r)
 echo "        --  Code Name        " $(lsb_release -c)
 echo ""
-echo "------------------------------------------------"
+echo "------------------------------------------------------"
 echo ""
 
 PS3="Please select the number for your OS / distro: "
@@ -700,10 +670,10 @@ select _ in \
     "CentOS 7 / 8 / Fedora" \
     "Debian 10 / 11" \
     "Ubuntu 18.04" \
-    "Ubuntu 20.04 / 21.04 / 22.04" \
+    "Ubuntu 20.04 / 21.04 / 22.04+" \
     "Arch Linux" \
     "Open Suse"\
-    "Arm64 / Raspian"\
+    "Arm64 / Raspbian"\
     "End this Installer"
 do
   case $REPLY in
